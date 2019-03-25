@@ -11,8 +11,8 @@ class HGCN(nn.Module):
 		
 		self.hgc1 = HeteGCNLayer(net_schema, layer_shape[0], layer_shape[1], dropout)
 		self.hgc2 = HeteGCNLayer(net_schema, layer_shape[1], layer_shape[2], dropout)
-		# self.hgc3 = HeteGCNLayer(net_schema, layer_shape[2], layer_shape[3], dropout)
-		# self.hgc4 = HeteGCNLayer(net_schema, layer_shape[3], layer_shape[4], dropout)
+		self.hgc3 = HeteGCNLayer(net_schema, layer_shape[2], layer_shape[3], dropout)
+		self.hgc4 = HeteGCNLayer(net_schema, layer_shape[3], layer_shape[4], dropout)
 		
 		self.net_schema = net_schema
 
@@ -21,17 +21,17 @@ class HGCN(nn.Module):
 
 		x_dict = self.hgc1(ft_dict, adj_dict)
 		x_dict = self.non_linear(x_dict)
-		x_dict = self.dropout_ft(x_dict, 0.5)
+		x_dict = self.dropout_ft(x_dict, 0.2)
 		
 		x_dict = self.hgc2(x_dict, adj_dict)
-		# x_dict = self.non_linear(x_dict)
-		# x_dict = self.dropout_ft(x_dict, 0.5)
+		x_dict = self.non_linear(x_dict)
+		x_dict = self.dropout_ft(x_dict, 0.1)
 		
-		# x_dict = self.hgc3(x_dict, adj_dict)
-		# x_dict = self.non_linear(x_dict)
-		# x_dict = self.dropout_ft(x_dict, 0.2)
+		x_dict = self.hgc3(x_dict, adj_dict)
+		x_dict = self.non_linear(x_dict)
+		x_dict = self.dropout_ft(x_dict, 0.1)
 		
-		# x_dict = self.hgc4(x_dict, adj_dict)
+		x_dict = self.hgc4(x_dict, adj_dict)
 		return x_dict
 
 	def non_linear(self, x_dict):

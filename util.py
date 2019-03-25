@@ -17,9 +17,14 @@ def load_imdb128():
 		(sp_A_m_a, sp_A_m_c, sp_A_m_d, sp_A_m_t, sp_A_m_u, sp_A_m_g) = pickle.load(in_file)
 
 
-	# label: country or genre
-	# label = ('m', torch.LongTensor(sp_A_m_g.todense()))
-	label = ('m', torch.LongTensor(sp_A_m_c.todense()))
+	# label: genre
+	label = {}
+	m_label = sp_A_m_g.todense()
+	m_label = torch.LongTensor(m_label)
+	idx_train_m = torch.LongTensor(np.arange(0, int(m_label.shape[0]*0.8)))
+	idx_val_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.8), int(m_label.shape[0]*0.9)))
+	idx_test_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.9), m_label.shape[0]))
+	label['m'] = [m_label, idx_train_m, idx_val_m, idx_test_m]
 
 
 	# feature: movie feature is loaded, other features are genreted by their one-hot vectors
@@ -30,33 +35,26 @@ def load_imdb128():
 	ft_dict['a'] = torch.FloatTensor(np.mat(np.eye((sp_A_m_a.shape[1]))))
 	ft_dict['u'] = torch.FloatTensor(np.mat(np.eye((sp_A_m_u.shape[1]))))
 	ft_dict['t'] = torch.FloatTensor(np.mat(np.eye((sp_A_m_t.shape[1]))))
-	# ft_dict['c'] = torch.FloatTensor(np.mat(np.eye((sp_A_m_c.shape[1]))))
+	ft_dict['c'] = torch.FloatTensor(np.mat(np.eye((sp_A_m_c.shape[1]))))
 	ft_dict['d'] = torch.FloatTensor(np.mat(np.eye((sp_A_m_d.shape[1]))))
 
 
 	# dense adj mats
-	# adj_dict = {'m':{}, 'a':{}, 'u':{}, 't':{}, 'c':{}, 'd':{}}
-	adj_dict = {'m':{}, 'a':{}, 'u':{}, 't':{}, 'd':{}}
+	adj_dict = {'m':{}, 'a':{}, 'u':{}, 't':{}, 'c':{}, 'd':{}}
 	adj_dict['m']['a'] = torch.FloatTensor(row_normalize(sp_A_m_a.todense()))
 	adj_dict['m']['u'] = torch.FloatTensor(row_normalize(sp_A_m_u.todense()))
 	adj_dict['m']['t'] = torch.FloatTensor(row_normalize(sp_A_m_t.todense()))
-	# adj_dict['m']['c'] = torch.FloatTensor(row_normalize(sp_A_m_c.todense()))
+	adj_dict['m']['c'] = torch.FloatTensor(row_normalize(sp_A_m_c.todense()))
 	adj_dict['m']['d'] = torch.FloatTensor(row_normalize(sp_A_m_d.todense()))
 	
 	adj_dict['a']['m'] = torch.FloatTensor(row_normalize(sp_A_m_a.todense().transpose()))
 	adj_dict['u']['m'] = torch.FloatTensor(row_normalize(sp_A_m_u.todense().transpose()))
 	adj_dict['t']['m'] = torch.FloatTensor(row_normalize(sp_A_m_t.todense().transpose()))
-	# adj_dict['c']['m'] = torch.FloatTensor(row_normalize(sp_A_m_c.todense().transpose()))
+	adj_dict['c']['m'] = torch.FloatTensor(row_normalize(sp_A_m_c.todense().transpose()))
 	adj_dict['d']['m'] = torch.FloatTensor(row_normalize(sp_A_m_d.todense().transpose()))
 
 
-	# dataset split mask
-	idx_train = torch.LongTensor(range(0, 60))
-	idx_val = torch.LongTensor(range(60, 100))
-	idx_test = torch.LongTensor(range(100, 128))
-
-
-	return label, ft_dict, adj_dict, idx_train, idx_val, idx_test
+	return label, ft_dict, adj_dict
 
 
 
@@ -72,9 +70,14 @@ def load_imdb10197():
 		(sp_A_m_a, sp_A_m_c, sp_A_m_d, sp_A_m_t, sp_A_m_u, sp_A_m_g) = pickle.load(in_file)
 
 
-	# label: country or genre
-	# label = ('m', torch.LongTensor(sp_A_m_g.todense()))
-	label = ('m', torch.LongTensor(sp_A_m_c.todense()))
+	# label: genre
+	label = {}
+	m_label = sp_A_m_g.todense()
+	m_label = torch.LongTensor(m_label)
+	idx_train_m = torch.LongTensor(np.arange(0, int(m_label.shape[0]*0.8)))
+	idx_val_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.8), int(m_label.shape[0]*0.9)))
+	idx_test_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.9), m_label.shape[0]))
+	label['m'] = [m_label, idx_train_m, idx_val_m, idx_test_m]
 
 
 	# feature: movie feature is loaded, other features are genreted by xavier_uniform distribution
@@ -82,41 +85,35 @@ def load_imdb10197():
 	m_ft_std = (m_ft - m_ft.mean(0)) / m_ft.std(0)
 	ft_dict['m'] = torch.FloatTensor(m_ft_std)
 	
-	ft_dict['a'] = torch.FloatTensor(sp_A_m_a.shape[1], 2**8)
+	ft_dict['a'] = torch.FloatTensor(sp_A_m_a.shape[1], 256)
 	torch.nn.init.xavier_uniform_(ft_dict['a'].data, gain=1.414)
-	ft_dict['u'] = torch.FloatTensor(sp_A_m_u.shape[1], 2**8)
+	ft_dict['u'] = torch.FloatTensor(sp_A_m_u.shape[1], 256)
 	torch.nn.init.xavier_uniform_(ft_dict['u'].data, gain=1.414)
-	ft_dict['t'] = torch.FloatTensor(sp_A_m_t.shape[1], 2**8)
+	ft_dict['t'] = torch.FloatTensor(sp_A_m_t.shape[1], 256)
 	torch.nn.init.xavier_uniform_(ft_dict['t'].data, gain=1.414)
-	# ft_dict['c'] = torch.FloatTensor(sp_A_m_c.shape[1], 2**8)
-	# torch.nn.init.xavier_uniform_(ft_dict['c'].data, gain=1.414)
-	ft_dict['d'] = torch.FloatTensor(sp_A_m_d.shape[1], 2**8)
+	ft_dict['c'] = torch.FloatTensor(sp_A_m_c.shape[1], 256)
+	torch.nn.init.xavier_uniform_(ft_dict['c'].data, gain=1.414)
+	ft_dict['d'] = torch.FloatTensor(sp_A_m_d.shape[1], 256)
 	torch.nn.init.xavier_uniform_(ft_dict['d'].data, gain=1.414)
 	
 
 	# sparse adj mats
-	# adj_dict = {'m':{}, 'a':{}, 'u':{}, 't':{}, 'c':{}, 'd':{}}
-	adj_dict = {'m':{}, 'a':{}, 'u':{}, 't':{}, 'd':{}}
+	adj_dict = {'m':{}, 'a':{}, 'u':{}, 't':{}, 'c':{}, 'd':{}}
 	adj_dict['m']['a'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_a.todense())))
 	adj_dict['m']['u'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_u.todense())))
 	adj_dict['m']['t'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_t.todense())))
-	# adj_dict['m']['c'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_c.todense())))
+	adj_dict['m']['c'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_c.todense())))
 	adj_dict['m']['d'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_d.todense())))
 	
 	adj_dict['a']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_a.todense().transpose())))
 	adj_dict['u']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_u.todense().transpose())))
 	adj_dict['t']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_t.todense().transpose())))
-	# adj_dict['c']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_c.todense().transpose())))
+	adj_dict['c']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_c.todense().transpose())))
 	adj_dict['d']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_d.todense().transpose())))
 
 
 	# dataset split mask
-	idx_train = torch.LongTensor(range(0, 8000))
-	idx_val = torch.LongTensor(range(8000, 10000))
-	idx_test = torch.LongTensor(range(10000, 10197))
-
-
-	return label, ft_dict, adj_dict, idx_train, idx_val, idx_test
+	return label, ft_dict, adj_dict
 
 
 
@@ -143,14 +140,14 @@ def load_dblp4area():
 	idx_train_p = torch.LongTensor(label_index_p[0: int(len(label_index_p)*0.8)])
 	idx_val_p = torch.LongTensor(label_index_p[int(len(label_index_p)*0.8): int(len(label_index_p)*0.9)])
 	idx_test_p = torch.LongTensor(label_index_p[int(len(label_index_p)*0.9): ])
-	label['p'] = (p_label, idx_train_p, idx_val_p, idx_test_p)
+	label['p'] = [p_label, idx_train_p, idx_val_p, idx_test_p]
 
 	label_index_a = np.where(a_label != -1)[0]
 	a_label = torch.LongTensor(a_label)
 	idx_train_a = torch.LongTensor(label_index_a[0: int(len(label_index_a)*0.8)])
 	idx_val_a = torch.LongTensor(label_index_a[int(len(label_index_a)*0.8): int(len(label_index_a)*0.9)])
 	idx_test_a = torch.LongTensor(label_index_a[int(len(label_index_a)*0.9): ])
-	label['a'] = (a_label, idx_train_a, idx_val_a, idx_test_a)
+	label['a'] = [a_label, idx_train_a, idx_val_a, idx_test_a]
 
 
 	label_index_c = np.where(c_label != -1)[0]
@@ -158,7 +155,7 @@ def load_dblp4area():
 	idx_train_c = torch.LongTensor(label_index_c[0: int(len(label_index_c)*0.8)])
 	idx_val_c = torch.LongTensor(label_index_c[int(len(label_index_c)*0.8): int(len(label_index_c)*0.9)])
 	idx_test_c = torch.LongTensor(label_index_c[int(len(label_index_c)*0.9): ])
-	label['c'] = (c_label, idx_train_c, idx_val_c, idx_test_c)
+	label['c'] = [c_label, idx_train_c, idx_val_c, idx_test_c]
 
 
 	# feature: paper feature is loaded, other features are genreted by xavier_uniform distribution
@@ -214,6 +211,8 @@ def accuracy(output, labels):
     return correct / len(labels)
 
 
+
 if __name__ == '__main__':
+	load_imdb128()
 	# load_imdb10197()
 	load_dblp4area()

@@ -66,7 +66,9 @@ class HeteAggregateLayer(nn.Module):
 			nb_ft[k] = torch.spmm(adj_dict[k], nb_ft[k])
 			nb_ft[k] = torch.mm(nb_ft[k], self.W['share'])
 
-		agg_nb_ft = torch.zeros(self_ft.shape)
+		agg_nb_ft = torch.zeros(self_ft.shape).cuda()
+		# agg_nb_ft = torch.zeros(self_ft.shape)
+
 		if len(self.nb_list) < 2:
 			agg_nb_ft = list(nb_ft.values())[0]
 		else:
