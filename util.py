@@ -73,7 +73,7 @@ def load_imdb10197():
 	# label: genre
 	label = {}
 	m_label = sp_A_m_g.todense()
-	m_label = torch.LongTensor(m_label)
+	m_label = torch.LongTensor(np.delete(m_label, -4, 1))  # delete -4 col because of only one sample has this category
 	idx_train_m = torch.LongTensor(np.arange(0, int(m_label.shape[0]*0.8)))
 	idx_val_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.8), int(m_label.shape[0]*0.9)))
 	idx_test_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.9), m_label.shape[0]))
@@ -213,6 +213,6 @@ def accuracy(output, labels):
 
 
 if __name__ == '__main__':
-	load_imdb128()
-	# load_imdb10197()
-	load_dblp4area()
+	# load_imdb128()
+	load_imdb10197()
+	# load_dblp4area()

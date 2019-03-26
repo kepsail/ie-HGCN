@@ -6,13 +6,13 @@ from layer import HeteGCNLayer
 
 
 class HGCN(nn.Module):
-	def __init__(self, net_schema, layer_shape, dropout):
+	def __init__(self, net_schema, layer_shape):
 		super(HGCN, self).__init__()
 		
-		self.hgc1 = HeteGCNLayer(net_schema, layer_shape[0], layer_shape[1], dropout)
-		self.hgc2 = HeteGCNLayer(net_schema, layer_shape[1], layer_shape[2], dropout)
-		self.hgc3 = HeteGCNLayer(net_schema, layer_shape[2], layer_shape[3], dropout)
-		self.hgc4 = HeteGCNLayer(net_schema, layer_shape[3], layer_shape[4], dropout)
+		self.hgc1 = HeteGCNLayer(net_schema, layer_shape[0], layer_shape[1])
+		self.hgc2 = HeteGCNLayer(net_schema, layer_shape[1], layer_shape[2])
+		self.hgc3 = HeteGCNLayer(net_schema, layer_shape[2], layer_shape[3])
+		self.hgc4 = HeteGCNLayer(net_schema, layer_shape[3], layer_shape[4])
 		
 		self.net_schema = net_schema
 
@@ -21,11 +21,11 @@ class HGCN(nn.Module):
 
 		x_dict = self.hgc1(ft_dict, adj_dict)
 		x_dict = self.non_linear(x_dict)
-		x_dict = self.dropout_ft(x_dict, 0.2)
+		x_dict = self.dropout_ft(x_dict, 0.3)
 		
 		x_dict = self.hgc2(x_dict, adj_dict)
 		x_dict = self.non_linear(x_dict)
-		x_dict = self.dropout_ft(x_dict, 0.1)
+		x_dict = self.dropout_ft(x_dict, 0.2)
 		
 		x_dict = self.hgc3(x_dict, adj_dict)
 		x_dict = self.non_linear(x_dict)
