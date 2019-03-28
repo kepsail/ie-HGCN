@@ -73,20 +73,35 @@ def load_imdb10197():
 	# label: genre
 	label = {}
 	m_label = sp_A_m_g.todense()
-	m_label = torch.LongTensor(np.delete(m_label, -4, 1))  # delete -4 col because of only one sample has this category
+	m_label = np.delete(m_label, -4, 1)
+	m_label = np.delete(m_label, 7592, 0)
+
+
+	m_label = torch.LongTensor(m_label)   # multi label indicator
+	
+	# m_single_label = np.zeros(m_label.shape[0], dtype=np.int64)    # multi class one hot but single label for one example
+	# for i in range(m_label.shape[0]):
+	# 	(r_idx, c_idx) = np.where(m_label[i] == 1)
+	# 	if len(c_idx) == 1:
+	# 		m_single_label[i] = c_idx[0]
+	# 	else:
+	# 		sample_idx = np.random.randint(len(c_idx))
+	# 		m_single_label[i] = c_idx[sample_idx]
+	# m_label = torch.LongTensor(m_single_label)
+
+
 	idx_train_m = torch.LongTensor(np.arange(0, int(m_label.shape[0]*0.8)))
 	idx_val_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.8), int(m_label.shape[0]*0.9)))
 	idx_test_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.9), m_label.shape[0]))
 	label['m'] = [m_label, idx_train_m, idx_val_m, idx_test_m]
-
 
 	# feature: movie feature is loaded, other features are genreted by xavier_uniform distribution
 	ft_dict = {}
 	m_ft_std = (m_ft - m_ft.mean(0)) / m_ft.std(0)
 	ft_dict['m'] = torch.FloatTensor(m_ft_std)
 	
-	ft_dict['a'] = torch.FloatTensor(sp_A_m_a.shape[1], 256)
-	torch.nn.init.xavier_uniform_(ft_dict['a'].data, gain=1.414)
+	# ft_dict['a'] = torch.FloatTensor(sp_A_m_a.shape[1], 256)
+	# torch.nn.init.xavier_uniform_(ft_dict['a'].data, gain=1.414)
 	ft_dict['u'] = torch.FloatTensor(sp_A_m_u.shape[1], 256)
 	torch.nn.init.xavier_uniform_(ft_dict['u'].data, gain=1.414)
 	ft_dict['t'] = torch.FloatTensor(sp_A_m_t.shape[1], 256)
@@ -98,14 +113,15 @@ def load_imdb10197():
 	
 
 	# sparse adj mats
-	adj_dict = {'m':{}, 'a':{}, 'u':{}, 't':{}, 'c':{}, 'd':{}}
-	adj_dict['m']['a'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_a.todense())))
+	# adj_dict = {'m':{}, 'a':{}, 'u':{}, 't':{}, 'c':{}, 'd':{}}
+	adj_dict = {'m':{}, 'u':{}, 't':{}, 'c':{}, 'd':{}}
+	# adj_dict['m']['a'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_a.todense())))
 	adj_dict['m']['u'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_u.todense())))
 	adj_dict['m']['t'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_t.todense())))
 	adj_dict['m']['c'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_c.todense())))
 	adj_dict['m']['d'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_d.todense())))
 	
-	adj_dict['a']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_a.todense().transpose())))
+	# adj_dict['a']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_a.todense().transpose())))
 	adj_dict['u']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_u.todense().transpose())))
 	adj_dict['t']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_t.todense().transpose())))
 	adj_dict['c']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_c.todense().transpose())))
@@ -180,7 +196,6 @@ def load_dblp4area():
 	adj_dict['a']['p'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_a.todense().transpose())))
 	adj_dict['c']['p'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_c.todense().transpose())))
 	adj_dict['t']['p'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_t.todense().transpose())))
-
 
 
 	return label, ft_dict, adj_dict

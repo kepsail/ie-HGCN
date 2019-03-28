@@ -33,10 +33,10 @@ class HeteAggregateLayer(nn.Module):
 		
 		self.nb_list = nb_list
 		
-		self.W_dict = nn.ParameterDict()
+		self.W_proj = nn.ParameterDict()
 		for k in nb_list:
-			self.W_dict[k] = nn.Parameter(torch.FloatTensor(in_layer_shape[k], out_shape))
-			nn.init.xavier_uniform_(self.W_dict[k].data, gain=1.414)
+			self.W_proj[k] = nn.Parameter(torch.FloatTensor(in_layer_shape[k], out_shape))
+			nn.init.xavier_uniform_(self.W_proj[k].data, gain=1.414)
 		
 		self.w_self = nn.Parameter(torch.FloatTensor(in_layer_shape[curr_k], out_shape))
 		nn.init.xavier_uniform_(self.w_self.data, gain=1.414)
@@ -61,7 +61,7 @@ class HeteAggregateLayer(nn.Module):
 
 		nb_ft = {}
 		for k in self.nb_list:
-			nb_ft[k] = torch.mm(x_dict[k], self.W_dict[k])
+			nb_ft[k] = torch.mm(x_dict[k], self.W_proj[k])
 			nb_ft[k] = torch.spmm(adj_dict[k], nb_ft[k])
 			nb_ft[k] = torch.mm(nb_ft[k], self.w_share)
 
