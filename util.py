@@ -1,7 +1,14 @@
 import numpy as np
 import scipy.sparse as sp
+import scipy.io as sio
 import pickle
 import torch
+
+
+
+# seed = 87
+# np.random.seed(seed)
+# torch.manual_seed(seed)
 
 
 
@@ -74,7 +81,6 @@ def load_imdb10197():
 	label = {}
 	m_label = sp_A_m_g.todense()
 	m_label = np.delete(m_label, -4, 1)
-	m_label = np.delete(m_label, 7592, 0)
 
 
 	m_label = torch.LongTensor(m_label)   # multi label indicator
@@ -90,9 +96,23 @@ def load_imdb10197():
 	# m_label = torch.LongTensor(m_single_label)
 
 
-	idx_train_m = torch.LongTensor(np.arange(0, int(m_label.shape[0]*0.8)))
-	idx_val_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.8), int(m_label.shape[0]*0.9)))
-	idx_test_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.9), m_label.shape[0]))
+	# rand_idx = np.random.permutation(m_label.shape[0])
+	# idx_7592 = np.where(rand_idx == 7592)[0]
+	# rand_idx = np.delete(rand_idx, idx_7592[0], 0)
+	# idx_train_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0): int(m_label.shape[0]*0.80)])
+	# idx_val_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0.80): int(m_label.shape[0]*0.90)])
+	# idx_test_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0.90): int(m_label.shape[0]*1)])
+
+
+	idx_train_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.2), int(m_label.shape[0]*1.0)))
+	idx_7592 = np.where(idx_train_m == 7592)[0]
+	idx_train_m = np.delete(idx_train_m, idx_7592[0], 0)
+
+	idx_val_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.0), int(m_label.shape[0]*0.1)))
+	idx_test_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.1), int(m_label.shape[0]*0.2)))
+
+
+
 	label['m'] = [m_label, idx_train_m, idx_val_m, idx_test_m]
 
 	# feature: movie feature is loaded, other features are genreted by xavier_uniform distribution
@@ -100,31 +120,31 @@ def load_imdb10197():
 	m_ft_std = (m_ft - m_ft.mean(0)) / m_ft.std(0)
 	ft_dict['m'] = torch.FloatTensor(m_ft_std)
 	
-	# ft_dict['a'] = torch.FloatTensor(sp_A_m_a.shape[1], 256)
-	# torch.nn.init.xavier_uniform_(ft_dict['a'].data, gain=1.414)
+	ft_dict['a'] = torch.FloatTensor(sp_A_m_a.shape[1], 256)
+	torch.nn.init.xavier_uniform_(ft_dict['a'].data, gain=1.414)
 	ft_dict['u'] = torch.FloatTensor(sp_A_m_u.shape[1], 256)
 	torch.nn.init.xavier_uniform_(ft_dict['u'].data, gain=1.414)
-	ft_dict['t'] = torch.FloatTensor(sp_A_m_t.shape[1], 256)
-	torch.nn.init.xavier_uniform_(ft_dict['t'].data, gain=1.414)
-	ft_dict['c'] = torch.FloatTensor(sp_A_m_c.shape[1], 256)
-	torch.nn.init.xavier_uniform_(ft_dict['c'].data, gain=1.414)
+	# ft_dict['t'] = torch.FloatTensor(sp_A_m_t.shape[1], 256)
+	# torch.nn.init.xavier_uniform_(ft_dict['t'].data, gain=1.414)
+	# ft_dict['c'] = torch.FloatTensor(sp_A_m_c.shape[1], 256)
+	# torch.nn.init.xavier_uniform_(ft_dict['c'].data, gain=1.414)
 	ft_dict['d'] = torch.FloatTensor(sp_A_m_d.shape[1], 256)
 	torch.nn.init.xavier_uniform_(ft_dict['d'].data, gain=1.414)
 	
 
 	# sparse adj mats
 	# adj_dict = {'m':{}, 'a':{}, 'u':{}, 't':{}, 'c':{}, 'd':{}}
-	adj_dict = {'m':{}, 'u':{}, 't':{}, 'c':{}, 'd':{}}
-	# adj_dict['m']['a'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_a.todense())))
+	adj_dict = {'m':{}, 'a':{}, 'u':{}, 'd':{}}
+	adj_dict['m']['a'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_a.todense())))
 	adj_dict['m']['u'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_u.todense())))
-	adj_dict['m']['t'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_t.todense())))
-	adj_dict['m']['c'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_c.todense())))
+	# adj_dict['m']['t'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_t.todense())))
+	# adj_dict['m']['c'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_c.todense())))
 	adj_dict['m']['d'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_d.todense())))
 	
-	# adj_dict['a']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_a.todense().transpose())))
+	adj_dict['a']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_a.todense().transpose())))
 	adj_dict['u']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_u.todense().transpose())))
-	adj_dict['t']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_t.todense().transpose())))
-	adj_dict['c']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_c.todense().transpose())))
+	# adj_dict['t']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_t.todense().transpose())))
+	# adj_dict['c']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_c.todense().transpose())))
 	adj_dict['d']['m'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_m_d.todense().transpose())))
 
 
@@ -202,6 +222,87 @@ def load_dblp4area():
 
 
 
+def load_dbis():
+	path='./data/dbis/'
+	dataset='dbis'
+	print('Loading {} dataset...'.format(dataset))
+
+	with open('{}{}_paper_feature.pkl'.format(path, dataset), 'rb') as in_file:
+		p_ft = pickle.load(in_file)
+
+	with open('{}{}_author_label.pkl'.format(path, dataset), 'rb') as in_file:
+		author_label = np.array(pickle.load(in_file), dtype=np.int64)
+		author_label[:,1] = author_label[:,1] - 1
+
+	norm_adj_mats = sio.loadmat('{}{}_sp_row_norm_adj_mats.mat'.format(path, dataset))
+
+
+	# author label
+	label = {}
+
+	a_label = np.full(norm_adj_mats['norm_p_a'].shape[1], -1, dtype=np.int64)
+	a_label[author_label[:,0]] = author_label[:,1]
+	a_label = torch.LongTensor(a_label)
+
+	# idx_train_a = torch.LongTensor(author_label[:,0][int(author_label.shape[0]*0): int(author_label.shape[0]*0.8)])
+	# idx_val_a = torch.LongTensor(author_label[:,0][int(author_label.shape[0]*0.8): int(author_label.shape[0]*0.9)])
+	# idx_test_a = torch.LongTensor(author_label[:,0][int(author_label.shape[0]*0.9): int(author_label.shape[0]*1)])
+
+	idx_train_a = []
+	np.random.shuffle(author_label)
+	author_label_train = author_label[int(author_label.shape[0]*0.0):int(author_label.shape[0]*0.8)]
+	cate_num = np.unique(author_label_train[:,1]).shape[0]
+	if cate_num == 8:
+		max_cate_num = np.bincount(author_label_train[:,1]).max()
+		for cate_i in range(cate_num):
+			cate_i_idx = author_label_train[np.where(author_label_train[:,1]==cate_i)[0], 0]
+			idx_train_a.extend(cate_i_idx[:max_cate_num])
+		np.random.shuffle(idx_train_a)
+		idx_train_a = torch.LongTensor(idx_train_a)
+	else:
+		print('please check the train label distribution!')
+		exit()
+
+	idx_val_a = torch.LongTensor(author_label[int(author_label.shape[0]*0.8):int(author_label.shape[0]*0.9), 0])
+	idx_test_a = torch.LongTensor(author_label[int(author_label.shape[0]*0.9):int(author_label.shape[0]*1.0), 0])
+
+
+
+
+	label['a'] = [a_label, idx_train_a, idx_val_a, idx_test_a]
+	
+	# feature: paper feature is loaded, other features are genreted by xavier_uniform distribution
+	ft_dict = {}
+	p_ft_std = (p_ft - p_ft.mean(0)) / p_ft.std(0)
+	ft_dict['p'] = torch.FloatTensor(p_ft_std)
+	
+		
+	ft_dict['a'] = torch.FloatTensor(norm_adj_mats['norm_p_a'].shape[1], 128)
+	torch.nn.init.xavier_uniform_(ft_dict['a'].data, gain=1.414)
+	ft_dict['c'] = torch.FloatTensor(norm_adj_mats['norm_p_c'].shape[1], 128)
+	torch.nn.init.xavier_uniform_(ft_dict['c'].data, gain=1.414)
+	
+
+	# sparse adj mats
+	adj_dict = {'p':{}, 'a':{}, 'c':{}}
+
+	# adj_dict['p']['a'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_a.todense())))
+	# adj_dict['p']['c'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_c.todense())))
+	
+	# adj_dict['a']['p'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_a.todense().transpose())))
+	# adj_dict['c']['p'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_c.todense().transpose())))
+
+	adj_dict['p']['a'] = sp_coo_2_sp_tensor(norm_adj_mats['norm_p_a'].astype(np.float32).tocoo())
+	adj_dict['p']['c'] = sp_coo_2_sp_tensor(norm_adj_mats['norm_p_c'].astype(np.float32).tocoo())
+	
+	adj_dict['a']['p'] = sp_coo_2_sp_tensor(norm_adj_mats['norm_a_p'].astype(np.float32).tocoo())
+	adj_dict['c']['p'] = sp_coo_2_sp_tensor(norm_adj_mats['norm_c_p'].astype(np.float32).tocoo())
+
+
+	return label, ft_dict, adj_dict
+
+
+
 def row_normalize(mat):
     """Row-normalize matrix"""
     rowsum = mat.sum(1)
@@ -229,5 +330,6 @@ def accuracy(output, labels):
 
 if __name__ == '__main__':
 	# load_imdb128()
-	load_imdb10197()
+	# load_imdb10197()
 	# load_dblp4area()
+	load_dbis()
