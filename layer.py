@@ -5,6 +5,7 @@ import torch.nn.functional as F
 
 
 class HeteGCNLayer(nn.Module):
+
 	def __init__(self, net_schema, in_layer_shape, out_layer_shape):
 		super(HeteGCNLayer, self).__init__()
 		
@@ -28,6 +29,7 @@ class HeteGCNLayer(nn.Module):
 
 
 class HeteAggregateLayer(nn.Module):
+	
 	def __init__(self, curr_k, nb_list, in_layer_shape, out_shape):
 		super(HeteAggregateLayer, self).__init__()
 		

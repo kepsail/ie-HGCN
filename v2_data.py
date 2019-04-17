@@ -4,6 +4,8 @@ import scipy.io as sio
 import pickle
 import torch
 
+from v2_util import row_normalize, sp_coo_2_sp_tensor
+
 
 
 # seed = 87
@@ -28,7 +30,7 @@ def load_imdb128():
 	label = {}
 	m_label = sp_A_m_g.todense()
 	m_label = torch.LongTensor(m_label)
-	idx_train_m = torch.LongTensor(np.arange(0, int(m_label.shape[0]*0.8)))
+	idx_train_m = torch.LongTensor(np.arange(0, int(m_label.shape[0]*1.0)))
 	idx_val_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.8), int(m_label.shape[0]*0.9)))
 	idx_test_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.9), m_label.shape[0]))
 	label['m'] = [m_label, idx_train_m, idx_val_m, idx_test_m]
@@ -96,20 +98,20 @@ def load_imdb10197():
 	# m_label = torch.LongTensor(m_single_label)
 
 
-	rand_idx = np.random.permutation(m_label.shape[0])
-	idx_7592 = np.where(rand_idx == 7592)[0]
-	rand_idx = np.delete(rand_idx, idx_7592[0], 0)
-	idx_train_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0.00): int(m_label.shape[0]*0.8)])
-	idx_val_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0.8): int(m_label.shape[0]*0.9)])
-	idx_test_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0.9): int(m_label.shape[0]*1.0)])
+	# rand_idx = np.random.permutation(m_label.shape[0])
+	# idx_7592 = np.where(rand_idx == 7592)[0]
+	# rand_idx = np.delete(rand_idx, idx_7592[0], 0)
+	# idx_train_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0): int(m_label.shape[0]*0.80)])
+	# idx_val_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0.80): int(m_label.shape[0]*0.90)])
+	# idx_test_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0.90): int(m_label.shape[0]*1)])
 
 
-	# idx_train_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.2), int(m_label.shape[0]*1.0)))
-	# idx_7592 = np.where(idx_train_m == 7592)[0]
-	# idx_train_m = np.delete(idx_train_m, idx_7592[0], 0)
+	idx_train_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.2), int(m_label.shape[0]*1.0)))
+	idx_7592 = np.where(idx_train_m == 7592)[0]
+	idx_train_m = np.delete(idx_train_m, idx_7592[0], 0)
 
-	# idx_val_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.0), int(m_label.shape[0]*0.1)))
-	# idx_test_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.1), int(m_label.shape[0]*0.2)))
+	idx_val_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.0), int(m_label.shape[0]*0.1)))
+	idx_test_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.1), int(m_label.shape[0]*0.2)))
 
 
 
@@ -120,9 +122,6 @@ def load_imdb10197():
 	m_ft_std = (m_ft - m_ft.mean(0)) / m_ft.std(0)
 	ft_dict['m'] = torch.FloatTensor(m_ft_std)
 	
-	# ft_dict['m'] = torch.FloatTensor(sp_A_m_a.shape[0], 256)
-	# torch.nn.init.xavier_uniform_(ft_dict['m'].data, gain=1.414)
-
 	ft_dict['a'] = torch.FloatTensor(sp_A_m_a.shape[1], 256)
 	torch.nn.init.xavier_uniform_(ft_dict['a'].data, gain=1.414)
 	ft_dict['u'] = torch.FloatTensor(sp_A_m_u.shape[1], 256)
@@ -210,8 +209,9 @@ def load_dblp4area():
 	torch.nn.init.xavier_uniform_(ft_dict['t'].data, gain=1.414)
 	
 
-	# sparse adj mats
 	adj_dict = {'p':{}, 'a':{}, 'c':{}, 't':{}}
+	
+	# sparse adj mats
 	adj_dict['p']['a'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_a.todense())))
 	adj_dict['p']['c'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_c.todense())))
 	adj_dict['p']['t'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_t.todense())))
@@ -219,6 +219,15 @@ def load_dblp4area():
 	adj_dict['a']['p'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_a.todense().transpose())))
 	adj_dict['c']['p'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_c.todense().transpose())))
 	adj_dict['t']['p'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_t.todense().transpose())))
+
+	# dense adj mats
+	# adj_dict['p']['a'] = torch.FloatTensor(row_normalize(sp_A_p_a.todense()))
+	# adj_dict['p']['c'] = torch.FloatTensor(row_normalize(sp_A_p_c.todense()))
+	# adj_dict['p']['t'] = torch.FloatTensor(row_normalize(sp_A_p_t.todense()))
+	
+	# adj_dict['a']['p'] = torch.FloatTensor(row_normalize(sp_A_p_a.todense().transpose()))
+	# adj_dict['c']['p'] = torch.FloatTensor(row_normalize(sp_A_p_c.todense().transpose()))
+	# adj_dict['t']['p'] = torch.FloatTensor(row_normalize(sp_A_p_t.todense().transpose()))
 
 
 	return label, ft_dict, adj_dict
@@ -307,34 +316,8 @@ def load_dbis():
 	return label, ft_dict, adj_dict
 
 
-
-def row_normalize(mat):
-    """Row-normalize matrix"""
-    rowsum = mat.sum(1)
-    rowsum[rowsum == 0.] = 0.01
-    return mat / rowsum
-
-
-
-def sp_coo_2_sp_tensor(sp_coo_mat):
-    """Convert a scipy sparse matrix to a torch sparse tensor."""
-    indices = torch.from_numpy(np.vstack((sp_coo_mat.row, sp_coo_mat.col)).astype(np.int64))
-    values = torch.from_numpy(sp_coo_mat.data)
-    shape = torch.Size(sp_coo_mat.shape)
-    return torch.sparse.FloatTensor(indices, values, shape)
-
-
-
-def accuracy(output, labels):
-    preds = output.max(1)[1].type_as(labels)
-    correct = preds.eq(labels).double()
-    correct = correct.sum()
-    return correct / len(labels)
-
-
-
 if __name__ == '__main__':
-	# load_imdb128()
-	load_imdb10197()
+	load_imdb128()
+	# load_imdb10197()
 	# load_dblp4area()
 	# load_dbis()

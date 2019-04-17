@@ -6,6 +6,7 @@ from layer import HeteGCNLayer
 
 
 class HGCN(nn.Module):
+	
 	def __init__(self, net_schema, layer_shape, label_keys):
 		super(HGCN, self).__init__()
 		
@@ -34,11 +35,11 @@ class HGCN(nn.Module):
 		
 		x_dict = self.hgc2(x_dict, adj_dict)
 		x2_dict = self.non_linear(x_dict)
-		x_dict = self.dropout_ft(x2_dict, 0.3)
+		x_dict = self.dropout_ft(x2_dict, 0.5)
 		
 		x_dict = self.hgc3(x_dict, adj_dict)
 		x3_dict = self.non_linear(x_dict)
-		x_dict = self.dropout_ft(x3_dict, 0.2)
+		x_dict = self.dropout_ft(x3_dict, 0.5)
 		
 		x_dict = self.hgc4(x_dict, adj_dict)
 
