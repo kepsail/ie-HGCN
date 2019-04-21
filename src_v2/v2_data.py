@@ -3,7 +3,14 @@ import scipy.sparse as sp
 import scipy.io as sio
 import pickle
 import torch
-from sklearn.feature_extraction.text import HashingVectorizer, TfidfTransformer
+
+from v2_util import row_normalize, sp_coo_2_sp_tensor
+
+
+
+# seed = 87
+# np.random.seed(seed)
+# torch.manual_seed(seed)
 
 
 
@@ -23,7 +30,7 @@ def load_imdb128():
 	label = {}
 	m_label = sp_A_m_g.todense()
 	m_label = torch.LongTensor(m_label)
-	idx_train_m = torch.LongTensor(np.arange(0, int(m_label.shape[0]*0.8)))
+	idx_train_m = torch.LongTensor(np.arange(0, int(m_label.shape[0]*1.0)))
 	idx_val_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.8), int(m_label.shape[0]*0.9)))
 	idx_test_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.9), m_label.shape[0]))
 	label['m'] = [m_label, idx_train_m, idx_val_m, idx_test_m]
@@ -91,20 +98,20 @@ def load_imdb10197():
 	# m_label = torch.LongTensor(m_single_label)
 
 
-	rand_idx = np.random.permutation(m_label.shape[0])
-	idx_7592 = np.where(rand_idx == 7592)[0]
-	rand_idx = np.delete(rand_idx, idx_7592[0], 0)
-	idx_train_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0.0): int(m_label.shape[0]*0.6)])
-	idx_val_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0.6): int(m_label.shape[0]*0.8)])
-	idx_test_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0.8): int(m_label.shape[0]*1.0)])
+	# rand_idx = np.random.permutation(m_label.shape[0])
+	# idx_7592 = np.where(rand_idx == 7592)[0]
+	# rand_idx = np.delete(rand_idx, idx_7592[0], 0)
+	# idx_train_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0): int(m_label.shape[0]*0.80)])
+	# idx_val_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0.80): int(m_label.shape[0]*0.90)])
+	# idx_test_m = torch.LongTensor(rand_idx[int(m_label.shape[0]*0.90): int(m_label.shape[0]*1)])
 
 
-	# idx_train_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.2), int(m_label.shape[0]*1.0)))
-	# idx_7592 = np.where(idx_train_m == 7592)[0]
-	# idx_train_m = np.delete(idx_train_m, idx_7592[0], 0)
+	idx_train_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.2), int(m_label.shape[0]*1.0)))
+	idx_7592 = np.where(idx_train_m == 7592)[0]
+	idx_train_m = np.delete(idx_train_m, idx_7592[0], 0)
 
-	# idx_val_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.0), int(m_label.shape[0]*0.1)))
-	# idx_test_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.1), int(m_label.shape[0]*0.2)))
+	idx_val_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.0), int(m_label.shape[0]*0.1)))
+	idx_test_m = torch.LongTensor(np.arange(int(m_label.shape[0]*0.1), int(m_label.shape[0]*0.2)))
 
 
 
@@ -115,9 +122,6 @@ def load_imdb10197():
 	m_ft_std = (m_ft - m_ft.mean(0)) / m_ft.std(0)
 	ft_dict['m'] = torch.FloatTensor(m_ft_std)
 	
-	# ft_dict['m'] = torch.FloatTensor(sp_A_m_a.shape[0], 256)
-	# torch.nn.init.xavier_uniform_(ft_dict['m'].data, gain=1.414)
-
 	ft_dict['a'] = torch.FloatTensor(sp_A_m_a.shape[1], 256)
 	torch.nn.init.xavier_uniform_(ft_dict['a'].data, gain=1.414)
 	ft_dict['u'] = torch.FloatTensor(sp_A_m_u.shape[1], 256)
@@ -171,7 +175,6 @@ def load_dblp4area():
 	
 	label_index_p = np.where(p_label != -1)[0]
 	p_label = torch.LongTensor(p_label)
-	np.random.shuffle(label_index_p)
 	idx_train_p = torch.LongTensor(label_index_p[0: int(len(label_index_p)*0.8)])
 	idx_val_p = torch.LongTensor(label_index_p[int(len(label_index_p)*0.8): int(len(label_index_p)*0.9)])
 	idx_test_p = torch.LongTensor(label_index_p[int(len(label_index_p)*0.9): ])
@@ -179,7 +182,6 @@ def load_dblp4area():
 
 	label_index_a = np.where(a_label != -1)[0]
 	a_label = torch.LongTensor(a_label)
-	np.random.shuffle(label_index_a)
 	idx_train_a = torch.LongTensor(label_index_a[0: int(len(label_index_a)*0.8)])
 	idx_val_a = torch.LongTensor(label_index_a[int(len(label_index_a)*0.8): int(len(label_index_a)*0.9)])
 	idx_test_a = torch.LongTensor(label_index_a[int(len(label_index_a)*0.9): ])
@@ -188,7 +190,6 @@ def load_dblp4area():
 
 	label_index_c = np.where(c_label != -1)[0]
 	c_label = torch.LongTensor(c_label)
-	np.random.shuffle(label_index_c)
 	idx_train_c = torch.LongTensor(label_index_c[0: int(len(label_index_c)*0.8)])
 	idx_val_c = torch.LongTensor(label_index_c[int(len(label_index_c)*0.8): int(len(label_index_c)*0.9)])
 	idx_test_c = torch.LongTensor(label_index_c[int(len(label_index_c)*0.9): ])
@@ -208,8 +209,9 @@ def load_dblp4area():
 	torch.nn.init.xavier_uniform_(ft_dict['t'].data, gain=1.414)
 	
 
-	# sparse adj mats
 	adj_dict = {'p':{}, 'a':{}, 'c':{}, 't':{}}
+	
+	# sparse adj mats
 	adj_dict['p']['a'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_a.todense())))
 	adj_dict['p']['c'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_c.todense())))
 	adj_dict['p']['t'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_t.todense())))
@@ -217,6 +219,15 @@ def load_dblp4area():
 	adj_dict['a']['p'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_a.todense().transpose())))
 	adj_dict['c']['p'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_c.todense().transpose())))
 	adj_dict['t']['p'] = sp_coo_2_sp_tensor(sp.coo_matrix(row_normalize(sp_A_p_t.todense().transpose())))
+
+	# dense adj mats
+	# adj_dict['p']['a'] = torch.FloatTensor(row_normalize(sp_A_p_a.todense()))
+	# adj_dict['p']['c'] = torch.FloatTensor(row_normalize(sp_A_p_c.todense()))
+	# adj_dict['p']['t'] = torch.FloatTensor(row_normalize(sp_A_p_t.todense()))
+	
+	# adj_dict['a']['p'] = torch.FloatTensor(row_normalize(sp_A_p_a.todense().transpose()))
+	# adj_dict['c']['p'] = torch.FloatTensor(row_normalize(sp_A_p_c.todense().transpose()))
+	# adj_dict['t']['p'] = torch.FloatTensor(row_normalize(sp_A_p_t.todense().transpose()))
 
 
 	return label, ft_dict, adj_dict
@@ -305,83 +316,8 @@ def load_dbis():
 	return label, ft_dict, adj_dict
 
 
-
-def load_acm4025():
-	path='./data/acm4025/'
-	dataset='acm4025'
-	print('Loading {} dataset...'.format(dataset))
-
-	data = sio.loadmat('{}{}.mat'.format(path, dataset))
-
-
-	label = {}
-	p_label = torch.LongTensor(data['p_label'].argmax(1))
-	rand_idx = np.random.permutation(p_label.shape[0])
-	idx_train_p = torch.LongTensor(rand_idx[int(p_label.shape[0]*0.0): int(p_label.shape[0]*0.8)])
-	idx_val_p = torch.LongTensor(rand_idx[int(p_label.shape[0]*0.8): int(p_label.shape[0]*0.9)])
-	idx_test_p = torch.LongTensor(rand_idx[int(p_label.shape[0]*0.9): int(p_label.shape[0]*1.0)])
-	label['p'] = [p_label, idx_train_p, idx_val_p, idx_test_p]
-
-
-	adj_dict = {'p':{}, 'a':{}, 'l':{}}
-
-	adj_dict['p']['a'] = sp_coo_2_sp_tensor(data['sp_A_p_a'].astype(np.float32).tocoo())
-	adj_dict['p']['l'] = sp_coo_2_sp_tensor(data['sp_A_p_l'].astype(np.float32).tocoo())
-	
-	adj_dict['a']['p'] = sp_coo_2_sp_tensor(data['sp_A_a_p'].astype(np.float32).tocoo())
-	adj_dict['l']['p'] = sp_coo_2_sp_tensor(data['sp_A_l_p'].astype(np.float32).tocoo())
-
-
-	ft_dict = {}
-	
-	corpus = data['p_ft'].squeeze()
-	corpus_str = [corp[0] for corp in corpus]
-	vectorizer = HashingVectorizer(n_features=128)
-	p_text_ft = vectorizer.fit_transform(corpus_str)
-	transformer = TfidfTransformer()
-	p_text_ft = transformer.fit_transform(p_text_ft) 
-	p_ft = p_text_ft.todense()
-
-	p_ft_std = (p_ft - p_ft.mean(0)) / p_ft.std(0)
-	ft_dict['p'] = torch.FloatTensor(p_ft_std)
-	
-	ft_dict['a'] = torch.FloatTensor(adj_dict['p']['a'].shape[1], 128)
-	torch.nn.init.xavier_uniform_(ft_dict['a'].data, gain=1.414)
-	ft_dict['l'] = torch.FloatTensor(adj_dict['p']['l'].shape[1], 128)
-	torch.nn.init.xavier_uniform_(ft_dict['l'].data, gain=1.414)
-
-	return label, ft_dict, adj_dict
-
-
-
-def row_normalize(mat):
-    """Row-normalize matrix"""
-    rowsum = mat.sum(1)
-    rowsum[rowsum == 0.] = 0.01
-    return mat / rowsum
-
-
-
-def sp_coo_2_sp_tensor(sp_coo_mat):
-    """Convert a scipy sparse matrix to a torch sparse tensor."""
-    indices = torch.from_numpy(np.vstack((sp_coo_mat.row, sp_coo_mat.col)).astype(np.int64))
-    values = torch.from_numpy(sp_coo_mat.data)
-    shape = torch.Size(sp_coo_mat.shape)
-    return torch.sparse.FloatTensor(indices, values, shape)
-
-
-
-def accuracy(output, labels):
-    preds = output.max(1)[1].type_as(labels)
-    correct = preds.eq(labels).double()
-    correct = correct.sum()
-    return correct / len(labels)
-
-
-
 if __name__ == '__main__':
-	# load_imdb128()
+	load_imdb128()
 	# load_imdb10197()
 	# load_dblp4area()
 	# load_dbis()
-	load_acm4025()
