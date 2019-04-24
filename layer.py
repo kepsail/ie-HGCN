@@ -43,9 +43,6 @@ class HeteAggregateLayer(nn.Module):
 		
 		self.w_self = nn.Parameter(torch.FloatTensor(in_layer_shape[curr_k], out_shape))
 		nn.init.xavier_uniform_(self.w_self.data, gain=1.414)
-
-		# self.w_share = nn.Parameter(torch.FloatTensor(out_shape, out_shape))
-		# nn.init.xavier_uniform_(self.w_share.data, gain=1.414)
 			
 		self.w_att = nn.Parameter(torch.FloatTensor(2*out_shape, 1))
 		nn.init.xavier_uniform_(self.w_att.data, gain=1.414)
@@ -72,8 +69,9 @@ class HeteAggregateLayer(nn.Module):
 			nb_ft_list = list(nb_ft.values())
 
 			a_input = torch.cat([torch.cat(nb_ft_list, 0), self_ft.repeat(len(nb_ft_list), 1)], 1)
-			e = F.leaky_relu(torch.matmul(a_input, self.w_att))
+			e = F.elu(torch.matmul(a_input, self.w_att))
 			attention = F.softmax(e.view(-1, len(nb_ft_list)), dim=1)
+			
 			agg_nb_ft = torch.cat([nb_ft.unsqueeze(1) for nb_ft in nb_ft_list], 1).mul(attention.unsqueeze(-1)).sum(1)
 
 		output = torch.mm(torch.cat([agg_nb_ft, self_ft], 1), self.w_cat) + self.bias
