@@ -78,8 +78,8 @@ def train(epoch):
 
 
 	'''///////////////// Validatin ///////////////////'''
-	# model.eval()
-	# output = model(ft_dict, adj_dict)
+	model.eval()
+	output = model(ft_dict, adj_dict)
 
 
 	# m_logits = torch.sigmoid(output['m'])
@@ -216,6 +216,9 @@ def test():
 		  'test macro f1 a: {:.4f}'.format(f1_macro_test_a.item()),
 		 )
 
+	# return (f1_micro_test_m, f1_macro_test_m)
+	# return (f1_micro_test_p, f1_macro_test_p)
+	return (f1_micro_test_a, f1_macro_test_a)
 
 
 
@@ -226,19 +229,19 @@ if __name__ == '__main__':
 	weight_decay = 5e-4 # Weight decay (L2 loss on parameters).
 	type_att_size = 64
 	
-	type_fusion = 'att_self'  # mean att_cat att_self
-	train_percent = 0.6
+	type_fusion = 'att'  # mean att
+	train_percent = 0.2
 
 	run_num = 1
+	micro_f1_sum10 = 0.0
+	macro_f1_sum10 = 0.0
 	for run in range(run_num):
 		# if run >= 0 and run < 40:
-		# 	type_fusion = 'att_self'
+		# 	type_fusion = 'att'
 		# elif run >=	40 and run < 80:
-		# 	type_fusion = 'att_cat'
-		# elif run >= 80 and run < 120:
 		# 	type_fusion = 'mean'
 
-		# train_percent =+ (int((run % 40) / 10) + 1) * 2 / 10
+		# train_percent = (int((run % 40) / 10) + 1) * 2 / 10
 		
 		seed = run % 10
 
@@ -263,12 +266,13 @@ if __name__ == '__main__':
 
 		# hid_layer_dim = [64,32,16] # acm
 		# # hid_layer_dim = [64]
-		# epochs = 200
+		# epochs = 500
 		# label, ft_dict, adj_dict = load_acm4025(train_percent)
 		# output_layer_shape = dict.fromkeys(ft_dict.keys(), 3)
 
 
-		hid_layer_dim = [64,32,16]  # dblp4area4057
+		# hid_layer_dim = [64,32,16]  # dblp4area4057
+		hid_layer_dim = [64,32,16,8]  # dblp4area4057
 		# hid_layer_dim = [64]
 		label, ft_dict, adj_dict = load_dblp4area4057(train_percent)
 		output_layer_shape = dict.fromkeys(ft_dict.keys(), 4)
@@ -342,5 +346,18 @@ if __name__ == '__main__':
 
 		for epoch in range(epochs):
 			train(epoch)
-		train(epochs)
-		test()
+		
+		(micro_f1, macro_f1) = test()
+		micro_f1_sum10 += micro_f1
+		macro_f1_sum10 += macro_f1
+		
+		if (run+1) % 10 == 0:
+			print(
+				  '\n' + str(type_fusion),
+				  str(train_percent),
+				  'average test result: ',
+		  		  'micro f1: {:.4f}'.format(micro_f1_sum10.item() / 10),
+				  'macro f1: {:.4f}'.format(macro_f1_sum10.item() / 10),
+			      )
+			micro_f1_sum10 = 0.0
+			macro_f1_sum10 = 0.0

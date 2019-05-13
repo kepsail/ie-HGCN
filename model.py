@@ -8,7 +8,7 @@ from layer import HeteGCNLayer
 
 class HGCN(nn.Module):
 	
-	def __init__(self, net_schema, layer_shape, label_keys, type_fusion='att_self', type_att_size=64):
+	def __init__(self, net_schema, layer_shape, label_keys, type_fusion='att', type_att_size=64):
 		super(HGCN, self).__init__()
 		
 		self.hgc1 = HeteGCNLayer(net_schema, layer_shape[0], layer_shape[1], type_fusion, type_att_size)

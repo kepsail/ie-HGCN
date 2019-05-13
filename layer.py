@@ -48,12 +48,7 @@ class HeteAggregateLayer(nn.Module):
 		self.bias = nn.Parameter(torch.FloatTensor(1, out_shape))
 		nn.init.xavier_uniform_(self.bias.data, gain=1.414)
 
-	
-		if type_fusion =='att_cat':
-			self.w_cat = nn.Parameter(torch.FloatTensor(2*out_shape, out_shape))
-			nn.init.xavier_uniform_(self.w_cat.data, gain=1.414)
-
-		if type_fusion != 'mean':
+		if type_fusion == 'att':
 			self.w_query = nn.Parameter(torch.FloatTensor(out_shape, type_att_size))
 			nn.init.xavier_uniform_(self.w_query.data, gain=1.414)
 			self.w_keys = nn.Parameter(torch.FloatTensor(out_shape, type_att_size))
@@ -63,59 +58,30 @@ class HeteAggregateLayer(nn.Module):
 
 
 	def forward(self, x_dict, adj_dict):
+
+		self_ft = torch.mm(x_dict[self.curr_k], self.w_self)
 		
-		if self.type_fusion == 'att_cat':
-			
-			self_ft = torch.mm(x_dict[self.curr_k], self.w_self)
-			
-			nb_ft_list = []
-			nb_name = []
-			for k in self.nb_list:
-				nb_ft = torch.mm(x_dict[k], self.W_rel[k])
-				nb_ft = torch.spmm(adj_dict[k], nb_ft)
-				nb_ft_list.append(nb_ft)
-				nb_name.append(k)
-			
-			if len(nb_ft_list) < 2:
-				agg_nb_ft = nb_ft_list[0]
-			else:
-				att_query = torch.mm(self_ft, self.w_query).repeat(len(nb_ft_list), 1)
-				att_keys = torch.mm(torch.cat(nb_ft_list, 0), self.w_keys)
-				att_input = torch.cat([att_keys, att_query], 1)
-				att_input = F.dropout(att_input, 0.5, training=self.training)
-				e = F.elu(torch.matmul(att_input, self.w_att))
-				attention = F.softmax(e.view(len(nb_ft_list), -1).transpose(0,1), dim=1)
-				agg_nb_ft = torch.cat([nb_ft.unsqueeze(1) for nb_ft in nb_ft_list], 1).mul(attention.unsqueeze(-1)).sum(1)
-				# print('curr key: ', self.curr_k, 'nb att: ', nb_name, attention.mean(0).tolist())
+		nb_ft_list = [self_ft]
+		nb_name = [self.curr_k]
+		for k in self.nb_list:
+			nb_ft = torch.mm(x_dict[k], self.W_rel[k])
+			nb_ft = torch.spmm(adj_dict[k], nb_ft)
+			nb_ft_list.append(nb_ft)
+			nb_name.append(k)
 		
-			output = torch.mm(torch.cat([agg_nb_ft, self_ft], 1), self.w_cat) + self.bias
+		if self.type_fusion == 'mean':
+			agg_nb_ft = torch.cat([nb_ft.unsqueeze(1) for nb_ft in nb_ft_list], 1).mean(1)
 
+		elif self.type_fusion == 'att':
+			att_query = torch.mm(self_ft, self.w_query).repeat(len(nb_ft_list), 1)
+			att_keys = torch.mm(torch.cat(nb_ft_list, 0), self.w_keys)
+			att_input = torch.cat([att_keys, att_query], 1)
+			att_input = F.dropout(att_input, 0.5, training=self.training)
+			e = F.elu(torch.matmul(att_input, self.w_att))
+			attention = F.softmax(e.view(len(nb_ft_list), -1).transpose(0,1), dim=1)
+			agg_nb_ft = torch.cat([nb_ft.unsqueeze(1) for nb_ft in nb_ft_list], 1).mul(attention.unsqueeze(-1)).sum(1)
+			# print('curr key: ', self.curr_k, 'nb att: ', nb_name, attention.mean(0).tolist())
 
-		else:
-
-			self_ft = torch.mm(x_dict[self.curr_k], self.w_self)
-			
-			nb_ft_list = [self_ft]
-			nb_name = [self.curr_k]
-			for k in self.nb_list:
-				nb_ft = torch.mm(x_dict[k], self.W_rel[k])
-				nb_ft = torch.spmm(adj_dict[k], nb_ft)
-				nb_ft_list.append(nb_ft)
-				nb_name.append(k)
-			
-			if self.type_fusion == 'mean':
-				agg_nb_ft = torch.cat([nb_ft.unsqueeze(1) for nb_ft in nb_ft_list], 1).mean(1)
-
-			elif self.type_fusion == 'att_self':
-				att_query = torch.mm(self_ft, self.w_query).repeat(len(nb_ft_list), 1)
-				att_keys = torch.mm(torch.cat(nb_ft_list, 0), self.w_keys)
-				att_input = torch.cat([att_keys, att_query], 1)
-				att_input = F.dropout(att_input, 0.5, training=self.training)
-				e = F.elu(torch.matmul(att_input, self.w_att))
-				attention = F.softmax(e.view(len(nb_ft_list), -1).transpose(0,1), dim=1)
-				agg_nb_ft = torch.cat([nb_ft.unsqueeze(1) for nb_ft in nb_ft_list], 1).mul(attention.unsqueeze(-1)).sum(1)
-				# print('curr key: ', self.curr_k, 'nb att: ', nb_name, attention.mean(0).tolist())
-
-			output = agg_nb_ft + self.bias
+		output = agg_nb_ft + self.bias
 
 		return output

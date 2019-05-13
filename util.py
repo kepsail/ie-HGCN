@@ -321,7 +321,7 @@ def load_dblp4area4057(train_percent):
 
 
 
-	# hgcn write
+	# # hgcn write
 	# hgcn_path = './data/dblp4area4057/dblp4area4057_hgcn_'+str(train_percent)+'.pkl'
 	# print('hgcn dump: ', hgcn_path)
 	# with open(hgcn_path, 'wb') as out_file:
@@ -354,16 +354,43 @@ def load_dblp4area4057(train_percent):
 	return label, ft_dict, adj_dict
 
 
-	# metapath write
+
+	# metapath write HAN
+	# np.random.seed(0)
+	# data = sio.loadmat('D:/python3/HAN/data/dblp/DBLP4057.mat')
+	
+	# val_percent =  (1.0 - train_percent)/2
+	# a_label  = data['label']
+	# a_idx = np.arange(a_label.shape[0])
+	# np.random.shuffle(a_idx)
+	# train_idx = a_idx[0: int(a_label.shape[0]*train_percent)]
+	# val_idx = a_idx[int(a_label.shape[0]*train_percent): int(a_label.shape[0]*(train_percent + val_percent))]
+	# test_idx = a_idx[int(a_label.shape[0]*(train_percent + val_percent)): ]
+	
+	# # a_label  = data['label']
+	# # train_idx = data['train_idx'].squeeze()
+	# # val_idx = data['val_idx'].squeeze()
+	# # test_idx = data['test_idx'].squeeze()
+
+	# label = [a_label, train_idx, val_idx, test_idx]
+	
+	# feature = data['features'].astype(np.float32)
+	# adj_list = [np.mat(data['net_APA'], dtype=np.float32), np.mat(data['net_APTPA'], dtype=np.float32), np.mat(data['net_APCPA'], dtype=np.float32)]
 	# metapath_path = './data/dblp4area4057/dblp4area4057_metapath_'+str(train_percent)+'.pkl'
 	# print('metapath dump: ', metapath_path)
+	# with open(metapath_path, 'wb') as out_file:
+	# 	pickle.dump((label, feature, adj_list), out_file)
 
+
+	# metapath write HGCN
 	# def encode_onehot(labels):
 	#     classes = set(np.unique(labels))
 	#     classes_dict = {c: np.identity(len(classes))[i, :] for i, c in enumerate(classes)}
 	#     labels_onehot = np.array(list(map(classes_dict.get, labels.tolist())), dtype=np.int32)
 	#     return labels_onehot
 
+	# metapath_path = './data/dblp4area4057/dblp4area4057_metapath_'+str(train_percent)+'.pkl'
+	# print('metapath dump: ', metapath_path)
 	# with open(metapath_path, 'wb') as out_file:
 	# 	a_label_one_hot = encode_onehot(a_label)
 	# 	label = [a_label_one_hot, idx_train_a.numpy(), idx_val_a.numpy(), idx_test_a.numpy()]
@@ -372,7 +399,6 @@ def load_dblp4area4057(train_percent):
 	# 	adj_list.append((A_p_a.transpose() * A_p_a).todense())  # APA
 	# 	adj_list.append((A_p_a.transpose() * A_p_t * A_p_t.transpose() * A_p_a).todense())  # APTPA
 	# 	adj_list.append((A_p_a.transpose() * A_p_c * A_p_c.transpose() * A_p_a).todense())  # APVPA
-		
 	# 	pickle.dump((label, feature, adj_list), out_file)
 
 
@@ -382,11 +408,13 @@ def load_dblp4area4057(train_percent):
 	# print('metapath load: ', metapath_path)
 	# with open(metapath_path, 'rb') as in_file:
 	# 	(label, feature, adj_list) = pickle.load(in_file)
-	
+	# print('ok')
+
 
 
 def load_dblp4area14475(train_percent):
-	
+	# np.random.seed(0)
+
 	# path='./data/dblp4area14475/'
 	# dataset='dblp4area14475'
 
@@ -400,6 +428,9 @@ def load_dblp4area14475(train_percent):
 
 	# with open('{}{}_sp_adj_mats.pkl'.format(path, dataset), 'rb') as in_file:
 	# 	(sp_A_p_a, sp_A_p_c, sp_A_p_t) = pickle.load(in_file)
+
+	# with open('./data/clean/dblp4area/dump/dblp4area_ids_map_dict.pkl', 'rb') as in_file:
+	# 	(p_id_raw2int, a_id_raw2int, c_id_raw2int, t_id_raw2int) = pickle.load(in_file)
 
 
 	# # label and dataset split idx
@@ -476,48 +507,48 @@ def load_dblp4area14475(train_percent):
 	# 	adj_dict['c']['p'] = adj_dict['c']['p'].to_dense()
 	# 	adj_dict['t']['p'] = adj_dict['t']['p'].to_dense()
 
-	# 	pickle.dump((label, ft_dict, adj_dict), out_file)
+		# pickle.dump((label, ft_dict, adj_dict), out_file)
 
 
 
 	# hgcn load
-	hgcn_path = './data/dblp4area14475/dblp4area14475_hgcn_'+str(train_percent)+'.pkl'
-	print('hgcn load: ', hgcn_path, '\n')
-	with open(hgcn_path, 'rb') as in_file:
-		(label, ft_dict, adj_dict) = pickle.load(in_file)
+	# hgcn_path = './data/dblp4area14475/dblp4area14475_hgcn_'+str(train_percent)+'.pkl'
+	# print('hgcn load: ', hgcn_path, '\n')
+	# with open(hgcn_path, 'rb') as in_file:
+	# 	(label, ft_dict, adj_dict) = pickle.load(in_file)
 	
-		adj_dict['p']['a'] = adj_dict['p']['a'].to_sparse()
-		adj_dict['p']['c'] = adj_dict['p']['c'].to_sparse()
-		adj_dict['p']['t'] = adj_dict['p']['t'].to_sparse()
+	# 	adj_dict['p']['a'] = adj_dict['p']['a'].to_sparse()
+	# 	adj_dict['p']['c'] = adj_dict['p']['c'].to_sparse()
+	# 	adj_dict['p']['t'] = adj_dict['p']['t'].to_sparse()
 		
-		adj_dict['a']['p'] = adj_dict['a']['p'].to_sparse()
-		adj_dict['c']['p'] = adj_dict['c']['p'].to_sparse()
-		adj_dict['t']['p'] = adj_dict['t']['p'].to_sparse()
+	# 	adj_dict['a']['p'] = adj_dict['a']['p'].to_sparse()
+	# 	adj_dict['c']['p'] = adj_dict['c']['p'].to_sparse()
+	# 	adj_dict['t']['p'] = adj_dict['t']['p'].to_sparse()
 
-	return label, ft_dict, adj_dict
+	# return label, ft_dict, adj_dict
 
 
 	# metapath write
-	# metapath_path = './data/dblp4area14475/dblp4area14475_metapath_'+str(train_percent)+'.pkl'
-	# print('metapath dump: ', metapath_path)
+	metapath_path = './data/dblp4area14475/dblp4area14475_metapath_'+str(train_percent)+'.pkl'
+	print('metapath dump: ', metapath_path)
 
-	# def encode_onehot_dblp4area14475(labels):
-	#     classes = set(np.unique(labels)[1:])
-	#     classes_dict = {c: np.identity(len(classes), dtype=np.int32)[i, :] for i, c in enumerate(classes)}
-	#     classes_dict[-1] = np.zeros(len(classes), dtype=np.int32)
-	#     labels_onehot = np.array(list(map(classes_dict.get, labels.tolist())), dtype=np.int32)
-	#     return labels_onehot
+	def encode_onehot_dblp4area14475(labels):
+	    classes = set(np.unique(labels)[1:])
+	    classes_dict = {c: np.identity(len(classes), dtype=np.int32)[i, :] for i, c in enumerate(classes)}
+	    classes_dict[-1] = np.zeros(len(classes), dtype=np.int32)
+	    labels_onehot = np.array(list(map(classes_dict.get, labels.tolist())), dtype=np.int32)
+	    return labels_onehot
 
-	# with open(metapath_path, 'wb') as out_file:
-	# 	a_label_one_hot = encode_onehot_dblp4area14475(a_label)
-	# 	label = [a_label_one_hot, idx_train_a.numpy(), idx_val_a.numpy(), idx_test_a.numpy()]
-	# 	feature = ft_dict['a'].numpy()
-	# 	adj_list = []
-	# 	adj_list.append((sp_A_p_a.transpose() * sp_A_p_a).todense())  # APA
-	# 	adj_list.append((sp_A_p_a.transpose() * sp_A_p_t * sp_A_p_t.transpose() * sp_A_p_a).todense())  # APTPA
-	# 	adj_list.append((sp_A_p_a.transpose() * sp_A_p_c * sp_A_p_c.transpose() * sp_A_p_a).todense())  # APVPA
+	with open(metapath_path, 'wb') as out_file:
+		a_label_one_hot = encode_onehot_dblp4area14475(a_label)
+		label = [a_label_one_hot, idx_train_a.numpy(), idx_val_a.numpy(), idx_test_a.numpy()]
+		feature = ft_dict['a'].numpy()
+		adj_list = []
+		adj_list.append((sp_A_p_a.transpose() * sp_A_p_a).todense())  # APA
+		adj_list.append((sp_A_p_a.transpose() * sp_A_p_t * sp_A_p_t.transpose() * sp_A_p_a).todense())  # APTPA
+		adj_list.append((sp_A_p_a.transpose() * sp_A_p_c * sp_A_p_c.transpose() * sp_A_p_a).todense())  # APVPA
 		
-	# 	pickle.dump((label, feature, adj_list), out_file)
+		pickle.dump((label, feature, adj_list), out_file)
 
 
 
@@ -795,12 +826,10 @@ if __name__ == '__main__':
 	# load_acm4025(0.4)
 	# load_acm4025(0.6)
 	# load_acm4025(0.8)
-	# load_dblp4area4057(0.2)
-	# load_dblp4area4057(0.4)
+	load_dblp4area4057(0.2)
+	load_dblp4area4057(0.4)
 	load_dblp4area4057(0.6)
-	# load_dblp4area4057(0.8)
-
-
+	load_dblp4area4057(0.8)
 
 	# load_dblp4area14475(0.2)
 	# load_dblp4area14475(0.4)
