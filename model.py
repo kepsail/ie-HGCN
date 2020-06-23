@@ -17,6 +17,22 @@ class HGCN(nn.Module):
 		self.hgc4 = HeteGCNLayer(net_schema, layer_shape[3], layer_shape[4], type_fusion, type_att_size)
 		
 
+		# self.hgc5 = HeteGCNLayer(net_schema, layer_shape[4], layer_shape[5], type_fusion, type_att_size)
+		# self.hgc6 = HeteGCNLayer(net_schema, layer_shape[5], layer_shape[6], type_fusion, type_att_size)
+		# self.hgc7 = HeteGCNLayer(net_schema, layer_shape[6], layer_shape[7], type_fusion, type_att_size)
+		# self.hgc8 = HeteGCNLayer(net_schema, layer_shape[7], layer_shape[8], type_fusion, type_att_size)
+		# self.hgc9 = HeteGCNLayer(net_schema, layer_shape[8], layer_shape[9], type_fusion, type_att_size)
+
+
+		self.embd2class = nn.ParameterDict()
+		self.bias = nn.ParameterDict()
+		self.label_keys = label_keys
+		for k in label_keys:
+			self.embd2class[k] = nn.Parameter(torch.FloatTensor(layer_shape[-2][k], layer_shape[-1][k]))
+			nn.init.xavier_uniform_(self.embd2class[k].data, gain=1.414)
+			self.bias[k] = nn.Parameter(torch.FloatTensor(1, layer_shape[-1][k]))
+			nn.init.xavier_uniform_(self.bias[k].data, gain=1.414)
+
 
 	def forward(self, ft_dict, adj_dict):
 
@@ -34,7 +50,37 @@ class HGCN(nn.Module):
 		
 		x_dict = self.hgc4(x_dict, adj_dict)
 
-		return x_dict
+
+		# x_dict = self.non_linear(x_dict)
+		# x_dict = self.dropout_ft(x_dict, 0.5)
+
+		# x_dict = self.hgc5(x_dict, adj_dict)
+		# x_dict = self.non_linear(x_dict)
+		# x_dict = self.dropout_ft(x_dict, 0.5)
+
+		# x_dict = self.hgc6(x_dict, adj_dict)
+		# x_dict = self.non_linear(x_dict)
+		# x_dict = self.dropout_ft(x_dict, 0.5)
+
+		# x_dict = self.hgc7(x_dict, adj_dict)
+		# x_dict = self.non_linear(x_dict)
+		# x_dict = self.dropout_ft(x_dict, 0.5)
+
+		# x_dict = self.hgc8(x_dict, adj_dict)
+		# x_dict = self.non_linear(x_dict)
+		# x_dict = self.dropout_ft(x_dict, 0.5)
+
+		# x_dict = self.hgc9(x_dict, adj_dict)
+
+
+
+
+		logits = {}
+		embd = {}
+		for k in self.label_keys:
+			embd[k] = x_dict[k]
+			logits[k] = torch.mm(x_dict[k], self.embd2class[k]) + self.bias[k]
+		return logits, embd
 
 
 	def non_linear(self, x_dict):

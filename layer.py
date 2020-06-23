@@ -80,7 +80,7 @@ class HeteAggregateLayer(nn.Module):
 			e = F.elu(torch.matmul(att_input, self.w_att))
 			attention = F.softmax(e.view(len(nb_ft_list), -1).transpose(0,1), dim=1)
 			agg_nb_ft = torch.cat([nb_ft.unsqueeze(1) for nb_ft in nb_ft_list], 1).mul(attention.unsqueeze(-1)).sum(1)
-			# print('curr key: ', self.curr_k, 'nb att: ', nb_name, attention.mean(0).tolist())
+			print('curr key: ', self.curr_k, 'nb att: ', nb_name, attention.mean(0).tolist())
 
 		output = agg_nb_ft + self.bias
 
