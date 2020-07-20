@@ -5,7 +5,7 @@ The source code of our preprint: [\[arXiv 2020\]  Interpretable and Efficient He
 ## Datasets
 The original dataset of **IMDB** is downloaded from [HetRec 2011](https://grouplens.org/datasets/hetrec-2011/)
 
-The original datasets of **ACM** and **DBLP** are provided by the authors of \[WWW 2019\] \[HAN\] Heterogeneous Graph Attention Network
+The original datasets of **ACM** and **DBLP** are provided by the authors of [\[WWW 2019\] \[HAN\] Heterogeneous Graph Attention Network](https://doi.org/10.1145/3308558.3313562)
 
 
 ## Requirements
