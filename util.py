@@ -4,11 +4,6 @@ import scipy.io as sio
 import pickle
 import torch
 from sklearn.feature_extraction.text import HashingVectorizer, TfidfTransformer
-from sklearn.manifold import TSNE
-import matplotlib
-# matplotlib.use('Agg')
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
 
 
 
