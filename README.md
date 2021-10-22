@@ -11,7 +11,7 @@ The preprocessed dataset are too large to be posted on GitHub. You can download 
 
 Baidu cloud drive: [https://pan.baidu.com/s/1uTqp2H9a0bQImcjEE3HUjw](https://pan.baidu.com/s/1uTqp2H9a0bQImcjEE3HUjw), extraction code *"dqbc"*.
 
-OneDrive cloud drive: [https://1drv.ms/u/s!Al6q89WbumrHknoV9Ohz9XvWoCBk?e=Mg9pAg](https://1drv.ms/u/s!Al6q89WbumrHknoV9Ohz9XvWoCBk?e=Mg9pAg).
+OneDrive cloud drive: [https://tinyurl.com/tkde-hgcn](https://tinyurl.com/tkde-hgcn).
 
 Please feel free to E-mail me <ymyang@stu.xidian.edu.cn> if you cannot download them successfully.
 
