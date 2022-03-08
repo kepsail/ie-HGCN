@@ -28,14 +28,4 @@ Please feel free to E-mail me <ymyang@stu.xidian.edu.cn> if you cannot download 
 
 
 ## Reference
-If you make advantage of ie-HGCN in your research, please cite our work as follows:
-
-```
-@article{yang2021interpretable,
-  title={Interpretable and efficient heterogeneous graph convolutional network},
-  author={Yang, Yaming and Guan, Ziyu and Li, Jianxin and Zhao, Wei and Cui, Jiangtao and Wang, Quan},
-  journal={IEEE Transactions on Knowledge and Data Engineering},
-  year={2021},
-  publisher={IEEE}
-}
-```
+If you make advantage of ie-HGCN in your research, please kindly cite our work.
