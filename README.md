@@ -9,8 +9,6 @@ Pre-print version: <https://arxiv.org/abs/2005.13183>
 
 ![model](ie-hgcn.png)
 
-<center>Model architecture</center>
-
 
 
 ## Datasets
