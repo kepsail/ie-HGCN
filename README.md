@@ -5,6 +5,14 @@ IEEE Xplore: <https://ieeexplore.ieee.org/document/9508875>
 
 Pre-print version: <https://arxiv.org/abs/2005.13183>
 
+
+
+![model](ie-hgcn.png)
+
+<center>Model architecture</center>
+
+
+
 ## Datasets
 The original dataset of **IMDB** is downloaded from [HetRec 2011](https://grouplens.org/datasets/hetrec-2011/)
 
