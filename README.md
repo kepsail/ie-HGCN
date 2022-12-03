@@ -24,7 +24,7 @@ OneDrive cloud drive: [https://tinyurl.com/tkde-hgcn](https://tinyurl.com/tkde-h
 
 We also provide a concise version of source code in both of the two above cloud drives.
 
-Please feel free to E-mail me <ymyang@stu.xidian.edu.cn> if you cannot download them successfully.
+Please feel free to E-mail me if you cannot download them successfully.
 
 
 ## Requirements
