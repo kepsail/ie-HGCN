@@ -41,6 +41,9 @@ If you make advantage of ie-HGCN in your research, please kindly cite our work a
   title={Interpretable and efficient heterogeneous graph convolutional network},
   author={Yang, Yaming and Guan, Ziyu and Li, Jianxin and Zhao, Wei and Cui, Jiangtao and Wang, Quan},
   journal={IEEE Transactions on Knowledge and Data Engineering},
+  volume={35},
+  number={2},
+  pages={1637--1650},
   year={2021},
   publisher={IEEE}
 }
